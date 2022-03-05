@@ -1,6 +1,6 @@
 #!/bin/bash
 
-volumes=($(tar --exclude="*/*/*" -tf data.tar | tail -n +2 | tr "/" " " | awk '{print $2}'))
+volumes=($(tar --exclude="*/*/*" -tf data.tar.gz | tail -n +2 | tr "/" " " | awk '{print $2}'))
 flags=""
 for v in "${volumes[@]}"; do
     flags="${flags} -v $v:/data/$v"
