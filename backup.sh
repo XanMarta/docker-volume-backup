@@ -21,13 +21,15 @@ else
     volumes=($(docker volume ls | tail -n +2 | awk '{print $2}'))
 fi
 
+echo "---------- Volume list ----------"
+printf '\t%s\n' "${volumes[@]}"
+echo "---------------------------------"
+read -p "Press Enter to continue ..."
+
 # Backup
 
 flags=""
-echo "--- Volume list ---"
 for v in "${volumes[@]}"; do
-    echo "    $v"
     flags="${flags} -v $v:/data/$v"
 done
-echo "------"
 docker run --rm ${flags} -v $(pwd):/backup alpine:3.15 tar czvf /backup/data.tar.gz /data
