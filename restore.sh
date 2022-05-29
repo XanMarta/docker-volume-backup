@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# -t <runtime_type>: (optional) Type of runtime (eg: -t podman, -t docker)
+
+
+# Read arguments
+
+while getopts ":t:" flag; do
+    case "${flag}" in
+        t) runtime=${OPTARG};;
+    esac
+done
+
 # Get volume list
 
 echo "Reading docker volume list ..."
@@ -21,4 +32,9 @@ flags=""
 for v in "${volumes[@]}"; do
     flags="${flags} -v $v:/data/$v"
 done
-docker run --rm ${flags} -v $(pwd):/backup alpine:3.15 tar xzvf /backup/data.tar.gz -C /data --strip 1
+
+if [[ $runtime == "podman" ]]; then
+    podman run --rm ${flags} -v $(pwd):/backup alpine:3.15 tar xzvf /backup/data.tar.gz -C /data --strip 1
+else
+    docker run --rm ${flags} -v $(pwd):/backup alpine:3.15 tar xzvf /backup/data.tar.gz -C /data --strip 1
+fi

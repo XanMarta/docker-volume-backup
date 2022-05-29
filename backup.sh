@@ -1,12 +1,19 @@
 #!/bin/bash
 
-# Get volume list
+# -t <runtime_type>: (optional) Type of runtime (eg: -t podman, -t docker)
+# -l <file_path>: (optional) Use list of files instead of all volumes (eg: -l list.txt)
 
-while getopts l: flag; do
+
+# Read arguments
+
+while getopts ":l:t:" flag; do
     case "${flag}" in
         l) filepath=${OPTARG};;
+        t) runtime=${OPTARG};;
     esac
 done
+
+# Get volume list
 
 if [[ ! -z $filepath ]]; then
     if [[ -f "$filepath" ]]; then
@@ -32,4 +39,10 @@ flags=""
 for v in "${volumes[@]}"; do
     flags="${flags} -v $v:/data/$v"
 done
-docker run --rm ${flags} -v $(pwd):/backup alpine:3.15 tar czvf /backup/data.tar.gz /data
+
+if [[ $runtime == "podman" ]]; then
+    podman run --rm ${flags} -v $(pwd):/backup alpine:3.15 tar czvf /backup/data.tar.gz /data
+else
+    docker run --rm ${flags} -v $(pwd):/backup alpine:3.15 tar czvf /backup/data.tar.gz /data
+fi
+
